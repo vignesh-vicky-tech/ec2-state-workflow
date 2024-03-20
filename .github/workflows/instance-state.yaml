@@ -6,21 +6,22 @@ on:
       instancePublicIP:
         description: 'The public ip of instance'  
         required: true 
-      name:
-        description: 'Name of the EC2 Instance'  
+      instanceID:
+        description: 'ID of the EC2 Instance'  
         required: true 
-      Reponame:
-        description: 'Reponame'
-        required: true
+      instanceState:
+        description: 'State of the EC2 Instance'  
+        required: true 
+     
  
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  greet:
+  stop_instance:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    if: ${{ github.event.inputs.instanceState == 'stop' }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - name: Set up SSH key
@@ -42,30 +43,26 @@ jobs:
           scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
     
-    - name: Execute the transferred scripts within VM
-      run: |
-           # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
-           ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
+    # - name: Execute the transferred scripts within VM
+    #   run: |
+    #        # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
+    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
 
-    - name: Retrieve the Argocd Password       
-      run: |
-           mkdir -p artifacts
-           ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
+    # - name: Retrieve the Argocd Password       
+    #   run: |
+    #        mkdir -p artifacts
+    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
     
-    - name: Create app in argocd within VM
-      run: | 
-          ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "sudo argocd app create ${{ github.event.inputs.name }}  --repo https://github.com/vignesh-vicky-tech/${{ github.event.inputs.Reponame }}.git --path yaml-files --dest-server https://kubernetes.default.svc --dest-namespace default --sync-policy automated"
-           # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "sudo argocd app create myapp  --repo https://github.com/vignesh-vicky-tech/new-repos.git --path yaml-files --dest-server https://kubernetes.default.svc --dest-namespace default"
+    
+   
+    - name: stop instance
+      run: |
+        aws ec2 stop-instances --instance-ids ${{ github.event.inputs.instanceID }} 
 
-
+         
+    
   
     
     
-    # - name: Upload Artifacts
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ArgoCdCreds
-    #     path: artifacts
-    #     retention-days: 1
-
+   
   
