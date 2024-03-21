@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ec2-state
+  description: Instance State
+  # Example for optional annotations
+  
+  annotations:
+      github.com/project-slug: vignesh-vicky-tech/ec2-state-workflow
+  #   backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  owner: guests
+  lifecycle: experimental
