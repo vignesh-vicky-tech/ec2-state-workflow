@@ -47,6 +47,18 @@ jobs:
       run: |
           scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
+
+    - name:  Print EC2 Instance IP
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'us-east-1'
+      run: |
+        aws ec2 describe-instances --instance-ids i-0528a91e48742ace3 --query "Reservations[*].Instances[*].PublicIpAddress" --output text > output.txt
+
+    - name: Display Output
+      run: cat output.txt
+
     
 #     # - name: Execute the transferred scripts within VM
 #     #   run: |
@@ -200,25 +212,11 @@ jobs:
 #          ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "sudo argocd app delete ${{ github.event.inputs.name }}"
      
     
-  
 
-
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
+   
       
 
-    - name:  Print EC2 Instance IP
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-      run: |
-        aws ec2 describe-instances --instance-ids i-0528a91e48742ace3 --query "Reservations[*].Instances[*].PublicIpAddress" --output text > output.txt
-
-    - name: Display Output
-      run: cat output.txt
-
+  
     
    
   
