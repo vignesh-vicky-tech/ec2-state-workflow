@@ -20,11 +20,11 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  stop_instance:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.instanceState == 'stop' }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  # stop_instance:
+  #   # The type of runner that the job will run on
+  #   runs-on: ubuntu-latest
+  #   if: ${{ github.event.inputs.instanceState == 'stop' }}
+  #   # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - name: Set up SSH key
       run: |
@@ -45,160 +45,177 @@ jobs:
           scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
     
-    # - name: Execute the transferred scripts within VM
-    #   run: |
-    #        # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
-    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
+#     # - name: Execute the transferred scripts within VM
+#     #   run: |
+#     #        # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
+#     #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
 
-    # - name: Retrieve the Argocd Password       
-    #   run: |
-    #        mkdir -p artifacts
-    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
+#     # - name: Retrieve the Argocd Password       
+#     #   run: |
+#     #        mkdir -p artifacts
+#     #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
     
     
     
-    - name: stop instance
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-      run: |
-        aws ec2 stop-instances --instance-ids ${{ github.event.inputs.instanceID }} 
+#     - name: stop instance
+#       env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: 'us-east-1'
+#       run: |
+#         aws ec2 stop-instances --instance-ids ${{ github.event.inputs.instanceID }} 
 
-  start_instance:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.instanceState == 'start' }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    - name: Set up SSH key
-      run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ github.event.inputs.instancePublicIP}} >> ~/.ssh/known_hosts
+#   start_instance:
+#     # The type of runner that the job will run on
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.inputs.instanceState == 'start' }}
+#     # Steps represent a sequence of tasks that will be executed as part of the job
+#     steps:
+#     - name: Set up SSH key
+#       run: |
+#           mkdir -p ~/.ssh/
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+#           ssh-keyscan -t rsa ${{ github.event.inputs.instancePublicIP}} >> ~/.ssh/known_hosts
     
-    - name: SSH into VM
-      run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP}} ' ls -la'
+#     - name: SSH into VM
+#       run: |
+#           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP}} ' ls -la'
 
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+#     - name: Checkout Repository
+#       uses: actions/checkout@v2
 
-    - name: Copy all bash scripts to VM
-      run: |
-          scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
+#     - name: Copy all bash scripts to VM
+#       run: |
+#           scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
+#           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
     
-    # - name: Execute the transferred scripts within VM
-    #   run: |
-    #        # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
-    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
+#     # - name: Execute the transferred scripts within VM
+#     #   run: |
+#     #        # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
+#     #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
 
-    # - name: Retrieve the Argocd Password       
-    #   run: |
-    #        mkdir -p artifacts
-    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
-    
-    
-    
-    - name: start instance
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-      run: |
-        aws ec2 start-instances --instance-ids ${{ github.event.inputs.instanceID }} 
-
-  reboot_instance:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.instanceState == 'reboot' }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    - name: Set up SSH key
-      run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ github.event.inputs.instancePublicIP}} >> ~/.ssh/known_hosts
-    
-    - name: SSH into VM
-      run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP}} ' ls -la'
-
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    - name: Copy all bash scripts to VM
-      run: |
-          scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
-    
-    # - name: Execute the transferred scripts within VM
-    #   run: |
-    #        # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
-    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
-
-    # - name: Retrieve the Argocd Password       
-    #   run: |
-    #        mkdir -p artifacts
-    #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
+#     # - name: Retrieve the Argocd Password       
+#     #   run: |
+#     #        mkdir -p artifacts
+#     #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
     
     
     
-    - name: reboot instance
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-      run: |
-        aws ec2 reboot-instances --instance-ids ${{ github.event.inputs.instanceID }} 
+#     - name: start instance
+#       env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: 'us-east-1'
+#       run: |
+#         aws ec2 start-instances --instance-ids ${{ github.event.inputs.instanceID }} 
 
-
-
-  delete_instance:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.instanceState == 'delete' }}
-    steps:
-    - name: Set up SSH key
-      run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ github.event.inputs.instancePublicIP}} >> ~/.ssh/known_hosts
+#   reboot_instance:
+#     # The type of runner that the job will run on
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.inputs.instanceState == 'reboot' }}
+#     # Steps represent a sequence of tasks that will be executed as part of the job
+#     steps:
+#     - name: Set up SSH key
+#       run: |
+#           mkdir -p ~/.ssh/
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+#           ssh-keyscan -t rsa ${{ github.event.inputs.instancePublicIP}} >> ~/.ssh/known_hosts
     
-    - name: SSH into VM
-      run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP}} ' ls -la'
+#     - name: SSH into VM
+#       run: |
+#           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP}} ' ls -la'
 
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+#     - name: Checkout Repository
+#       uses: actions/checkout@v2
 
-    - name: Copy all bash scripts to VM
-      run: |
-          scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
+#     - name: Copy all bash scripts to VM
+#       run: |
+#           scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
+#           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
     
-    - name: Execute the transferred scripts within VM
-      run: |
-           # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
-           ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
+#     # - name: Execute the transferred scripts within VM
+#     #   run: |
+#     #        # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
+#     #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
 
-    - name: Retrieve the Argocd Password       
-      run: |
-           mkdir -p artifacts
-           ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
+#     # - name: Retrieve the Argocd Password       
+#     #   run: |
+#     #        mkdir -p artifacts
+#     #        ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
+    
+    
+    
+#     - name: reboot instance
+#       env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: 'us-east-1'
+#       run: |
+#         aws ec2 reboot-instances --instance-ids ${{ github.event.inputs.instanceID }} 
+
+
+
+#   delete_instance:
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.inputs.instanceState == 'delete' }}
+#     steps:
+#     - name: Set up SSH key
+#       run: |
+#           mkdir -p ~/.ssh/
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+#           ssh-keyscan -t rsa ${{ github.event.inputs.instancePublicIP}} >> ~/.ssh/known_hosts
+    
+#     - name: SSH into VM
+#       run: |
+#           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP}} ' ls -la'
+
+#     - name: Checkout Repository
+#       uses: actions/checkout@v2
+
+#     - name: Copy all bash scripts to VM
+#       run: |
+#           scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
+#           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
+    
+#     - name: Execute the transferred scripts within VM
+#       run: |
+#            # ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'bash install_docker_k8s.sh && newgrp microk8s'
+#            ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "bash login_argocd.sh"
+
+#     - name: Retrieve the Argocd Password       
+#       run: |
+#            mkdir -p artifacts
+#            ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get secrets -n argocd argocd-initial-admin-secret -o=jsonpath={.data.password} | base64 -d" > artifacts/pswd.txt
     
     
    
-    - name: delete instance
-      run: |
-         ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "sudo argocd app delete ${{ github.event.inputs.name }}"
+#     - name: delete instance
+#       run: |
+#          ssh -v -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "sudo argocd app delete ${{ github.event.inputs.name }}"
      
     
   
-    
+
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+      
+
+    - name:  Print EC2 Instance IP
+#     env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: 'us-east-1'
+#     run: |
+#         aws ec2 describe-instances --instance-ids i-0528a91e48742ace3 --query "Reservations[*].Instances[*].PublicIpAddress" --output text > output.txt
+
+    - name: Display Output
+      run: cat output.txt
+
     
    
   
