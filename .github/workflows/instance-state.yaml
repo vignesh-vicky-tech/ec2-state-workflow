@@ -63,7 +63,8 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
          name: aws-cli-output
-         path: output.txt
+         path: artifacts
+         retention-days: 1
 
     
 #     # - name: Execute the transferred scripts within VM
