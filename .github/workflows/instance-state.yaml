@@ -12,9 +12,9 @@ on:
       # instanceState:
       #   description: 'State of the EC2 Instance'  
       #   required: true 
-      # name:
-      #   description: 'Name of the EC2 Instance'  
-      #   required: true 
+      name:
+        description: 'Name of the EC2 Instance'  
+        required: true 
  
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -48,13 +48,17 @@ jobs:
           scp *.sh ubuntu@${{ github.event.inputs.instancePublicIP }}:/home/ubuntu
           ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} 'ls -la'
 
+
+   
     - name:  Print EC2 Instance IP
       env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: 'us-east-1'
       run: |
-        aws ec2 describe-instances --instance-ids i-0528a91e48742ace3 --query "Reservations[*].Instances[*].PublicIpAddress" --output text > output.txt
+        ssh -i ~/.ssh/id_rsa ubuntu@${{ github.event.inputs.instancePublicIP }} "kubectl get managed | grep ${{ github.event.inputs.name}} | awk '{ print $4 }'" > instance-id.txt 
+        
+        aws ec2 describe-instances --instance-ids $(cat instance-id.txt) --query "Reservations[*].Instances[*].PublicIpAddress" --output text > output.txt
 
     - name: Display Output
       run: cat output.txt
