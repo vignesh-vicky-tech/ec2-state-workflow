@@ -206,12 +206,12 @@ jobs:
       
 
     - name:  Print EC2 Instance IP
-#     env:
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           AWS_DEFAULT_REGION: 'us-east-1'
-#     run: |
-#         aws ec2 describe-instances --instance-ids i-0528a91e48742ace3 --query "Reservations[*].Instances[*].PublicIpAddress" --output text > output.txt
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'us-east-1'
+      run: |
+        aws ec2 describe-instances --instance-ids i-0528a91e48742ace3 --query "Reservations[*].Instances[*].PublicIpAddress" --output text > output.txt
 
     - name: Display Output
       run: cat output.txt
