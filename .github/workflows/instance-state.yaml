@@ -59,6 +59,12 @@ jobs:
     - name: Display Output
       run: cat output.txt
 
+    - name: Upload output.txt as an artifact
+      uses: actions/upload-artifact@v2
+      with:
+         name: aws-cli-output
+         path: output.txt
+
     
 #     # - name: Execute the transferred scripts within VM
 #     #   run: |
