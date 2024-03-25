@@ -76,7 +76,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: 'us-east-1'
       run: |
-        aws ec2 start-instances --instance-ids ${{ github.event.inputs.instanceID }} 
+         ssh -v -i ~/.ssh/id_rsa ubuntu@${{ secrets.instancePublicIP }} "sudo kubectl get managed | grep ${{ github.event.inputs.name}} | awk '{ print \$4 }'" > instance-id.txt 
+         aws ec2 start-instances --instance-ids $(cat instance-id.txt) 
 
   reboot_instance:
     # The type of runner that the job will run on
@@ -109,7 +110,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: 'us-east-1'
       run: |
-        aws ec2 reboot-instances --instance-ids ${{ github.event.inputs.instanceID }} 
+         ssh -v -i ~/.ssh/id_rsa ubuntu@${{ secrets.instancePublicIP }} "sudo kubectl get managed | grep ${{ github.event.inputs.name}} | awk '{ print \$4 }'" > instance-id.txt 
+         aws ec2 reboot-instances --instance-ids $(cat instance-id.txt) 
 
 
 
