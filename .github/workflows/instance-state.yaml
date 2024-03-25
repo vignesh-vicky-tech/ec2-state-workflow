@@ -1,5 +1,4 @@
-name: Create App in ArgoCD
-
+name: EC2 Instance State
 on:
   workflow_dispatch:
     inputs:
@@ -19,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.instanceState == 'stop' }}
     # Steps represent a sequence of tasks that will be executed as part of the job
-  workflow:
+  ec2-workflow:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
